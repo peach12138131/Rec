@@ -6,7 +6,7 @@ import tensorflow.keras.backend as K
 import pickle
 import pandas as pd
 import numpy as np
-from blocks import ResidualBlock, FeatureAttention, CrossLayer,DINLayer
+from blocks import  FeatureAttention,DINLayer
 from tensorflow.keras.optimizers.schedules import CosineDecayRestarts
 from tensorflow.keras.optimizers import Adam
 from sklearn.metrics import confusion_matrix, roc_auc_score
@@ -47,6 +47,8 @@ class MMOE(Model):
         self.gate_units = gate_units
         self.num_expert = num_expert
         self.num_task = num_task
+        self.task_tower_units = task_tower_units # 任务塔的隐藏层单元数
+        
         
         
 
@@ -153,7 +155,7 @@ class MMOE(Model):
         self.task_tower=[]
         for i in range(self.num_task):
             task_layers = []
-            for j, units in enumerate(task_tower_units):
+            for j, units in enumerate(self.task_tower_units):
                 task_layers.append(
                     layers.Dense(
                         units,
@@ -359,6 +361,7 @@ class MMOE(Model):
             'expert_units': self.expert_units,
             'num_expert': self.num_expert,
             'num_task': self.num_task,
+            'task_tower_units': self.task_tower_units, 
             'depth_attention': self.depth_attention,
         })
         return config
